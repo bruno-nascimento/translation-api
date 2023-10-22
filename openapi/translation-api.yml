@@ -1,0 +1,151 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Translation API
+  description: A simple REST API for managing a word dictionary with translation capabilities
+  contact:
+    name: Bruno Nascimento
+    email: brunocn80@gmail.com
+    url: https://www.linkedin.com/in/bruno-caldeira-do-nascimento
+servers:
+  - url: http://localhost:8080/
+    description: Local server
+paths:
+  /v1/translation:
+    summary: Translations
+    description: Manage translations
+    get:
+      summary: Returns the translation of a word in a given language
+      operationId: findTranslation
+      parameters:
+        - name: word
+          in: query
+          description: Word to be translated
+          required: true
+          schema:
+            type: string
+        - name: language
+          in: query
+          description: The actual language of the word we want to translate
+          required: true
+          schema:
+            type: string
+        - name: target_language
+          in: query
+          description: The target language for translation of the 'word' parameter
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Translation of the word
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Translation'
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: Translation not found for the word / language pair
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranslationSuggestions'
+
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - Translation
+    post:
+      summary: Creates a new translation
+      operationId: addTranslation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTranslation'
+      responses:
+        201:
+          description: Translation created successfully
+        400:
+          description: Invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      tags:
+        - Translation
+
+components:
+  schemas:
+
+    Translation:
+      required:
+        - result
+      properties:
+        result:
+          type: string
+          description: The translation of the word
+
+    NewTranslation:
+      required:
+        - word
+        - language
+        - translation
+      properties:
+        from:
+          type: object
+          description: word and language of the word to be translated
+          properties:
+            word:
+              type: string
+              description: The word to be translated
+            language:
+              type: string
+              description: The language of the word to be translated
+        to:
+          type: object
+          description: word and language pair containing translation of the 'from' word
+          properties:
+            word:
+              type: string
+              description: The word to be translated
+            language:
+              type: string
+              description: The language of the word to be translated
+
+    Error:
+      properties:
+        code:
+          type: integer
+          format: int32
+          description: Error code
+        message:
+          type: string
+          description: Error message
+
+    TranslationSuggestions:
+      description: A list of suggestions containing words that are similar to the one provided in the 'word' parameter with the same 'language' parameter
+      type: object
+      properties:
+        similar_words:
+          type: array
+          items:
+            allOf:
+              - type: string
+                description: A word that is similar to the one provided in the 'word' parameter with the same 'language' parameter

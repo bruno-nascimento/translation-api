@@ -1,0 +1,5 @@
+package: client
+output: translation-api-client.gen.go
+generate:
+  models: true
+  client: true
