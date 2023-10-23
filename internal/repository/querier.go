@@ -9,9 +9,11 @@ import (
 )
 
 type Querier interface {
-	InsertLanguage(ctx context.Context, arg InsertLanguageParams) error
 	InsertTranslation(ctx context.Context, arg InsertTranslationParams) error
 	InsertWord(ctx context.Context, arg InsertWordParams) error
+	SelectSimilarWords(ctx context.Context, arg SelectSimilarWordsParams) ([]SelectSimilarWordsRow, error)
+	SelectTranslations(ctx context.Context, arg SelectTranslationsParams) ([]Word, error)
+	SelectWordIdByWordLangRegion(ctx context.Context, arg SelectWordIdByWordLangRegionParams) (string, error)
 }
 
 var _ Querier = (*Queries)(nil)

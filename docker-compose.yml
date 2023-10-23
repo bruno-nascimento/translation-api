@@ -13,3 +13,42 @@ services:
     restart: always
     ports:
       - 8888:8080
+
+  redis:
+    image: redis:6
+    restart: always
+    ports:
+      - 6379:6379
+
+  translation-api:
+    image: brunocn80/cable/translation-api:0.1.0
+    restart: always
+    build:
+      context: .
+      dockerfile_inline: |
+        FROM golang:1.21 AS build
+        WORKDIR /app
+        COPY go.mod ./
+        COPY go.sum ./
+        RUN go mod download -x
+        COPY . /app
+        RUN OPENAPI_SPEC_PATH=/app/openapi/translation-api.yml go test -short -v ./...
+        RUN go build -v -x -o ./translation cmd/main.go
+        FROM golang:1.21 AS run
+        COPY --from=build /app/translation /translation
+        CMD /translation
+    environment:
+      - COMPONENT=translation-api
+      - CACHE_ENABLED=true
+      - CACHE_REDIS_ADDR=redis:6379
+      - CACHE_TTL=15s
+      - LOG_LEVEL=debug
+      - LOG_PRETTY_PRINT=true
+      - DB_URL=postgres://postgres:root@db:5432/postgres?sslmode=disable
+      - OPENAPI_SPEC_PATH=/translation-api.yml
+      - SERVER_PORT=8080
+      - SERVER_HOST=0.0.0.0
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./openapi/translation-api.yml:/translation-api.yml:ro

@@ -4,13 +4,9 @@
 
 package repository
 
-import ()
-
-type Language struct {
-	ID     string `db:"id" json:"id"`
-	Base   string `db:"base" json:"base"`
-	Region string `db:"region" json:"region"`
-}
+import (
+	"github.com/jackc/pgx/v5/pgtype"
+)
 
 type Translation struct {
 	WordID            string `db:"word_id" json:"word_id"`
@@ -18,7 +14,8 @@ type Translation struct {
 }
 
 type Word struct {
-	ID         string `db:"id" json:"id"`
-	LanguageID string `db:"language_id" json:"language_id"`
-	Value      string `db:"value" json:"value"`
+	ID         string      `db:"id" json:"id"`
+	Value      string      `db:"value" json:"value"`
+	Lang       string      `db:"lang" json:"lang"`
+	LangRegion pgtype.Text `db:"lang_region" json:"lang_region"`
 }

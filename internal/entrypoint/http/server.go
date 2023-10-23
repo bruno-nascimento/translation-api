@@ -1,29 +1,25 @@
 package http
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/gofiber/contrib/swagger"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	middleware "github.com/oapi-codegen/fiber-middleware"
+	"github.com/rs/zerolog/log"
 
+	"github.com/bruno-nascimento/translation-api/internal/config"
 	"github.com/bruno-nascimento/translation-api/internal/entrypoint/http/api"
 )
 
-func NewServer(translation *TranslationAPI) *fiber.App {
+func NewServer(cfg *config.Config, translation *TranslationAPI) *fiber.App {
 
 	swggr, err := api.GetSwagger()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading swagger spec\n: %s", err)
-		os.Exit(1)
+		log.Fatal().Err(err).Msg("Error loading swagger spec")
 	}
 
-	app := fiber.New(fiber.Config{
-		EnablePrintRoutes: true,
-	})
+	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     "*",
@@ -37,11 +33,9 @@ func NewServer(translation *TranslationAPI) *fiber.App {
 		return ctx.Redirect("/docs")
 	})
 
-	cfg := swagger.Config{
-		FilePath: "/Users/bruno.nascimento/dev/code/tmp/translation-api/openapi/translation-api.yml",
-	}
-
-	app.Use(swagger.New(cfg))
+	app.Use(swagger.New(swagger.Config{
+		FilePath: cfg.OpenApiSpec.Path,
+	}))
 
 	app.Use(logger.New())
 

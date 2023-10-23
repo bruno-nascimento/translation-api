@@ -1,5 +1,6 @@
 -- migrate:up
-CREATE EXTENSION btree_gist;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS btree_gist;
 
 create table languages (
     id varchar(26) not null primary key,

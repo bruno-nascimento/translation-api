@@ -19,28 +19,36 @@ import (
 // Error defines model for Error.
 type Error struct {
 	// Code Error code
-	Code *int32 `json:"code,omitempty"`
+	Code int32 `json:"code"`
 
 	// Message Error message
-	Message *string `json:"message,omitempty"`
+	Message string `json:"message"`
 }
 
 // NewTranslation defines model for NewTranslation.
 type NewTranslation struct {
-	// Language The language of the word to be translated
-	Language string `json:"language"`
+	// From word and language of the word to be translated
+	From *struct {
+		// Language The language of the word to be translated
+		Language *string `json:"language,omitempty"`
 
-	// Translation The translation of the word
-	Translation string `json:"translation"`
+		// Word The word to be translated
+		Word *string `json:"word,omitempty"`
+	} `json:"from,omitempty"`
 
-	// Word The word to be translated
-	Word string `json:"word"`
+	// To word and language pair containing translation of the 'from' word
+	To *struct {
+		// Language The language of the word to be translated
+		Language *string `json:"language,omitempty"`
+
+		// Word The word to be translated
+		Word *string `json:"word,omitempty"`
+	} `json:"to,omitempty"`
 }
 
 // Translation defines model for Translation.
 type Translation struct {
-	// Result The translation of the word
-	Result string `json:"result"`
+	Results *[]string `json:"results,omitempty"`
 }
 
 // TranslationSuggestions A list of suggestions containing words that are similar to the one provided in the 'word' parameter with the same 'language' parameter

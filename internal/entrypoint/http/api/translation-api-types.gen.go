@@ -6,10 +6,10 @@ package api
 // Error defines model for Error.
 type Error struct {
 	// Code Error code
-	Code *int32 `json:"code,omitempty"`
+	Code int32 `json:"code"`
 
 	// Message Error message
-	Message *string `json:"message,omitempty"`
+	Message string `json:"message"`
 }
 
 // NewTranslation defines model for NewTranslation.
@@ -35,8 +35,7 @@ type NewTranslation struct {
 
 // Translation defines model for Translation.
 type Translation struct {
-	// Result The translation of the word
-	Result string `json:"result"`
+	Results *[]string `json:"results,omitempty"`
 }
 
 // TranslationSuggestions A list of suggestions containing words that are similar to the one provided in the 'word' parameter with the same 'language' parameter

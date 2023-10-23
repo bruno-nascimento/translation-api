@@ -22,33 +22,43 @@ paths:
           in: query
           description: Word to be translated
           required: true
+          example: "casa"
           schema:
             type: string
         - name: language
           in: query
           description: The actual language of the word we want to translate
           required: true
+          example: "pt-br"
           schema:
             type: string
         - name: target_language
           in: query
           description: The target language for translation of the 'word' parameter
           required: true
+          example: "en-us"
           schema:
             type: string
+
       responses:
+
         200:
           description: Translation of the word
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Translation'
+
+        204:
+          description: No content - No results or suggestions found
+
         400:
           description: Invalid input
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+
         404:
           description: Translation not found for the word / language pair
           content:
@@ -64,6 +74,7 @@ paths:
                 $ref: '#/components/schemas/Error'
       tags:
         - Translation
+
     post:
       summary: Creates a new translation
       operationId: addTranslation
@@ -98,9 +109,12 @@ components:
       required:
         - result
       properties:
-        result:
-          type: string
-          description: The translation of the word
+        results:
+          type: array
+          items:
+            allOf:
+              - type: string
+                description: A word can have more than one translation in a given language
 
     NewTranslation:
       required:
@@ -115,9 +129,11 @@ components:
             word:
               type: string
               description: The word to be translated
+              example: "casa"
             language:
               type: string
               description: The language of the word to be translated
+              example: "pt-br"
         to:
           type: object
           description: word and language pair containing translation of the 'from' word
@@ -125,11 +141,16 @@ components:
             word:
               type: string
               description: The word to be translated
+              example: "house"
             language:
               type: string
               description: The language of the word to be translated
+              example: "en-us"
 
     Error:
+      required:
+        - code
+        - message
       properties:
         code:
           type: integer

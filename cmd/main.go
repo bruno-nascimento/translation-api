@@ -10,6 +10,8 @@ import (
 	"github.com/bruno-nascimento/translation-api/internal/db"
 	"github.com/bruno-nascimento/translation-api/internal/entrypoint/http"
 	"github.com/bruno-nascimento/translation-api/internal/logger"
+	"github.com/bruno-nascimento/translation-api/internal/repository"
+	"github.com/bruno-nascimento/translation-api/internal/service"
 )
 
 func main() {
@@ -27,11 +29,24 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed to run migrations")
 	}
 
-	translationAPI := http.NewTranslationAPI()
+	dbConn, err := db.Connect(cfg)
+	if err != nil {
+		return
+	}
+	defer dbConn.Close(ctx)
 
-	s := http.NewServer(translationAPI)
+	repo, err := repository.NewRepository(cfg, dbConn)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to create repository")
+	}
 
-	if err = s.Listen(net.JoinHostPort("0.0.0.0", "8080")); err != nil {
+	translationAPI := http.NewTranslationAPI(service.NewTranslation(cfg, repo))
+
+	s := http.NewServer(cfg, translationAPI)
+	defer s.Shutdown()
+
+	if err = s.Listen(net.JoinHostPort(cfg.Server.Host, cfg.Server.Port)); err != nil {
 		log.Fatal().Err(err).Msg("Failed to start server")
 	}
+
 }
